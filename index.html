@@ -5,30 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KrediSoft — Préstamos Inteligentes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0a0c10;
-    --surface: #13161d;
-    --surface2: #1c2030;
-    --border: #252a38;
-    --accent: #00e5a0;
-    --accent2: #00b8ff;
-    --accent-glow: rgba(0,229,160,0.18);
-    --danger: #ff4d6d;
-    --text: #e8eaf0;
-    --muted: #6b7280;
-    --white: #ffffff;
-    --radius: 18px;
-    --radius-sm: 10px;
-    --font-head: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-    --transition: 0.22s cubic-bezier(.4,0,.2,1);
+    --bg:          #050810;
+    --surface:     #0d1117;
+    --surface2:    #161b27;
+    --surface3:    #1e2535;
+    --border:      #242d40;
+    --border2:     #2e3a52;
+    --accent:      #3b82f6;
+    --accent-light:#60a5fa;
+    --accent2:     #06b6d4;
+    --accent-glow: rgba(59,130,246,0.20);
+    --green:       #10b981;
+    --green-glow:  rgba(16,185,129,0.18);
+    --danger:      #ef4444;
+    --text:        #f0f4ff;
+    --text2:       #94a3b8;
+    --muted:       #4b5e7a;
+    --white:       #ffffff;
+    --radius:      16px;
+    --radius-sm:   10px;
+    --radius-xs:   7px;
+    --font-head:   'Space Grotesk', sans-serif;
+    --font-body:   'Plus Jakarta Sans', sans-serif;
+    --t:           0.2s cubic-bezier(.4,0,.2,1);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+    --shadow-glow: 0 0 40px rgba(59,130,246,0.12);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { font-size: 16px; scroll-behavior: smooth; }
 
   body {
@@ -40,233 +48,341 @@
     overflow-x: hidden;
   }
 
-  /* ── GRAIN OVERLAY ── */
+  /* ── AMBIENT BG ── */
   body::before {
     content: '';
     position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 65%),
+                radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.04) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
-    opacity: 0.5;
+  }
+
+  /* ── GRAIN ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
   }
 
   /* ── APP SHELL ── */
   #app {
     position: relative;
     z-index: 1;
-    max-width: 480px;
+    width: 100%;
+    max-width: 600px;
     margin: 0 auto;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
   }
 
+  @media (min-width: 600px) {
+    #app {
+      max-width: 640px;
+      box-shadow: 0 0 120px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.05);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    body { background: #020408; }
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 0;
+    }
+    #app {
+      max-width: 580px;
+      min-height: auto;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+  }
+
   /* ── HEADER ── */
   .header {
-    padding: 20px 24px 16px;
+    padding: clamp(14px, 3vw, 20px) clamp(16px, 4vw, 28px);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: rgba(5,8,16,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
-    background: rgba(10,12,16,0.8);
-    backdrop-filter: blur(16px);
     position: sticky;
     top: 0;
     z-index: 100;
+    gap: 12px;
   }
 
   .logo {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
   }
 
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #06b6d4 100%);
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 0 20px var(--accent-glow);
+    box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+    flex-shrink: 0;
   }
+
+  .logo-mark svg { width: 20px; height: 20px; }
 
   .logo-text {
     font-family: var(--font-head);
-    font-size: 1.4rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  .logo-text span {
+    background: linear-gradient(90deg, var(--accent-light), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .header-badge {
-    background: var(--surface2);
-    border: 1px solid var(--border);
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.2);
     border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-weight: 500;
-    letter-spacing: 0.05em;
+    padding: 5px 12px;
+    flex-shrink: 0;
+  }
+  .header-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 2.5s ease infinite;
+  }
+  .header-status span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
   }
 
   /* ── MAIN ── */
-  main { flex: 1; padding: 0 0 100px; }
+  main { flex: 1; padding: 0 0 clamp(80px, 15vw, 100px); }
 
   /* ── HERO ── */
   .hero {
-    padding: 32px 24px 24px;
+    padding: clamp(20px, 5vw, 36px) clamp(16px, 4vw, 28px) clamp(16px, 4vw, 24px);
     position: relative;
     overflow: hidden;
   }
 
-  .hero::after {
-    content: '';
-    position: absolute;
-    top: -60px;
-    right: -60px;
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hero-tag {
+  .hero-eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(0,229,160,0.1);
-    border: 1px solid rgba(0,229,160,0.25);
+    gap: 7px;
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.2);
     border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.72rem;
-    color: var(--accent);
+    padding: 5px 14px;
+    font-size: 0.7rem;
+    color: var(--accent-light);
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .hero-tag::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%,100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
+    margin-bottom: 14px;
   }
 
   .hero h1 {
     font-family: var(--font-head);
-    font-size: 2rem;
-    font-weight: 800;
-    line-height: 1.15;
+    font-size: clamp(1.55rem, 5vw, 2.1rem);
+    font-weight: 700;
+    line-height: 1.2;
     letter-spacing: -0.03em;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    color: var(--white);
   }
 
-  .hero h1 span {
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  .hero h1 .gradient-text {
+    background: linear-gradient(90deg, var(--accent-light) 0%, var(--accent2) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .hero p {
-    font-size: 0.9rem;
-    color: var(--muted);
-    line-height: 1.6;
-    font-weight: 300;
+    font-size: clamp(0.82rem, 2vw, 0.9rem);
+    color: var(--text2);
+    line-height: 1.65;
+    font-weight: 400;
+    max-width: 420px;
   }
 
   /* ── PROGRESS ── */
   .progress-wrap {
-    padding: 0 24px 20px;
+    padding: 0 clamp(16px, 4vw, 28px) 20px;
   }
 
-  .progress-labels {
+  .steps-nav {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    gap: 4px;
   }
 
-  .progress-label {
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    cursor: default;
+  }
+
+  .step-dot-circle {
+    width: clamp(26px, 5vw, 30px);
+    height: clamp(26px, 5vw, 30px);
+    border-radius: 50%;
+    background: var(--surface3);
+    border: 2px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.7rem;
+    font-weight: 700;
     color: var(--muted);
-    font-weight: 500;
+    transition: all 0.35s ease;
+    font-family: var(--font-head);
+  }
+
+  .step-dot.active .step-dot-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 16px rgba(59,130,246,0.4);
+  }
+
+  .step-dot.done .step-dot-circle {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .step-dot-label {
+    font-size: clamp(0.58rem, 1.5vw, 0.66rem);
+    font-weight: 600;
+    color: var(--muted);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    transition: color var(--transition);
+    text-align: center;
+    white-space: nowrap;
+    transition: color 0.3s;
   }
 
-  .progress-label.active { color: var(--accent); }
+  .step-dot.active .step-dot-label { color: var(--accent-light); }
+  .step-dot.done .step-dot-label { color: var(--green); }
 
-  .progress-bar-bg {
-    height: 3px;
-    background: var(--surface2);
-    border-radius: 4px;
+  .step-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border2);
+    border-radius: 2px;
+    margin-bottom: 18px;
+    position: relative;
     overflow: hidden;
+    max-width: 40px;
   }
 
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 4px;
-    transition: width 0.5s cubic-bezier(.4,0,.2,1);
-    box-shadow: 0 0 10px var(--accent-glow);
+  .step-connector-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--green), var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+    border-radius: 2px;
   }
 
-  /* ── STEPS ── */
-  .step { display: none; padding: 0 24px; animation: slideIn 0.3s ease; }
+  .step-connector.done .step-connector-fill { transform: scaleX(1); }
+
+  /* ── STEP CONTENT ── */
+  .step { display: none; padding: 0 clamp(16px, 4vw, 28px); animation: fadeUp 0.28s ease; }
   .step.active { display: block; }
 
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── SECTION TITLE ── */
-  .section-title {
-    font-family: var(--font-head);
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 6px;
+  /* ── SECTION HEADER ── */
+  .section-hd {
+    margin-bottom: 18px;
+  }
+
+  .section-hd-top {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 4px;
   }
 
-  .section-title .step-num {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  .step-badge {
+    width: 26px;
+    height: 26px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
-    color: #000;
+    color: var(--accent-light);
+    font-family: var(--font-head);
     flex-shrink: 0;
   }
 
-  .section-desc {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 20px;
-    font-weight: 300;
+  .section-hd h2 {
+    font-family: var(--font-head);
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .section-hd p {
+    font-size: clamp(0.78rem, 2vw, 0.83rem);
+    color: var(--text2);
+    font-weight: 400;
+    line-height: 1.5;
   }
 
   /* ── CARD ── */
@@ -274,194 +390,150 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-    transition: border-color var(--transition);
+    padding: clamp(16px, 4vw, 22px);
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--t);
   }
 
   .card:focus-within {
-    border-color: rgba(0,229,160,0.4);
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.07);
+    border-color: rgba(59,130,246,0.35);
+    box-shadow: var(--shadow-card), 0 0 0 3px rgba(59,130,246,0.07);
   }
 
   /* ── INPUTS ── */
-  .field {
-    margin-bottom: 14px;
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
-  .field:last-child { margin-bottom: 0; }
+  @media (max-width: 340px) {
+    .field-row { grid-template-columns: 1fr; }
+  }
 
   label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    color: var(--muted);
+    color: var(--text2);
     margin-bottom: 6px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon + input,
+  .input-icon + textarea { padding-left: 38px; }
 
   input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
     width: 100%;
     background: var(--surface2);
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--border2);
     border-radius: var(--radius-sm);
-    padding: 12px 14px;
+    padding: clamp(10px, 2.5vw, 13px) 14px;
     font-family: var(--font-body);
-    font-size: 0.95rem;
+    font-size: clamp(0.88rem, 2vw, 0.93rem);
     color: var(--text);
     outline: none;
-    transition: border-color var(--transition), box-shadow var(--transition);
+    transition: border-color var(--t), box-shadow var(--t), background var(--t);
     -webkit-appearance: none;
     appearance: none;
   }
 
-  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.7; font-size: 0.88rem; }
 
   input:focus, select:focus, textarea:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+    background: rgba(59,130,246,0.04);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
 
-  input.error { border-color: var(--danger); }
+  input.error { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.1) !important; }
 
   select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234b5e7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 40px;
     cursor: pointer;
   }
+  select option { background: var(--surface2); color: var(--text); }
 
-  select option { background: var(--surface); color: var(--text); }
+  textarea { resize: none; height: 82px; line-height: 1.5; }
 
-  textarea { resize: none; height: 80px; }
-
-  /* ── AMOUNT DISPLAY ── */
-  .amount-display {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 14px;
-  }
-
-  .amount-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-
-  .amount-value {
-    font-family: var(--font-head);
-    font-size: 1.8rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ── RELATION CHIPS ── */
-  .chips {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .chip {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    text-align: center;
-    cursor: pointer;
-    transition: all var(--transition);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .chip .chip-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
-  .chip .chip-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
-
-  .chip.selected {
-    border-color: var(--accent);
-    background: rgba(0,229,160,0.08);
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
-  }
-
-  .chip.selected .chip-label { color: var(--accent); }
-
-  /* ── VALIDATION BLOCK ── */
-  .validation-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
+  .err-msg {
+    font-size: 0.7rem;
+    color: var(--danger);
+    margin-top: 5px;
     display: none;
-  }
-
-  .validation-block.visible { display: block; }
-
-  .validation-block h3 {
-    font-family: var(--font-head);
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: var(--accent);
-    display: flex;
     align-items: center;
-    gap: 8px;
-  }
-
-  .validation-block p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-
-  .validation-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    font-size: 0.82rem;
+    gap: 4px;
     font-weight: 500;
   }
+  .err-msg.visible { display: flex; }
 
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--muted);
-    flex-shrink: 0;
+  /* ── CALCULATOR CARD ── */
+  .calc-card {
+    background: rgba(59,130,246,0.05);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-top: 14px;
   }
 
-  .status-dot.ok { background: var(--accent); }
-  .status-dot.fail { background: var(--danger); }
-
-  /* ── SUMMARY CARD ── */
-  .summary-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
+  .calc-header {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
-  .summary-row {
+  .calc-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
+    padding: 5px 0;
+    font-size: 0.83rem;
+    color: var(--text2);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .calc-row:last-child { border-bottom: none; }
+  .calc-row.total {
+    padding-top: 10px;
+    margin-top: 4px;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.92rem;
+    border-top: 1px solid var(--border2);
+    border-bottom: none;
   }
 
-  .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
-
-  .summary-key { color: var(--muted); font-weight: 400; }
-  .summary-val { font-weight: 600; color: var(--text); text-align: right; max-width: 55%; word-break: break-word; }
-  .summary-val.highlight {
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  .calc-row span:last-child { font-weight: 600; color: var(--text); }
+  .calc-row.total span:last-child {
+    background: linear-gradient(90deg, var(--accent-light), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -469,150 +541,373 @@
     font-size: 1rem;
   }
 
-  .total-section {
-    background: rgba(0,229,160,0.06);
-    border: 1px solid rgba(0,229,160,0.2);
+  /* ── RELATION CHIPS ── */
+  .chips-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  @media (max-width: 320px) {
+    .chips-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1.5px solid var(--border2);
     border-radius: var(--radius-sm);
-    padding: 16px;
-    margin-top: 12px;
+    padding: clamp(10px, 3vw, 14px) 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--t);
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .chip-icon { font-size: clamp(1.3rem, 3.5vw, 1.5rem); line-height: 1; }
+  .chip-label {
+    font-size: clamp(0.65rem, 1.8vw, 0.73rem);
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.2;
     text-align: center;
   }
 
-  .total-label { font-size: 0.72rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; font-weight: 600; }
+  .chip.selected {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12), inset 0 0 0 1px rgba(59,130,246,0.2);
+  }
+  .chip.selected .chip-label { color: var(--accent-light); }
+  .chip:hover:not(.selected) { border-color: var(--border2); background: var(--surface3); }
 
-  .total-value {
+  /* ── VALIDATION ── */
+  .vblock {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .vblock-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .vblock-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .vblock-title {
     font-family: var(--font-head);
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .vblock-desc {
+    font-size: 0.78rem;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  .validation-status-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+
+  .vstatus-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+  .vstatus-dot.ok { background: var(--green); }
+  .vstatus-dot.fail { background: var(--danger); }
+
+  /* ── SUMMARY ── */
+  .summary-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .summary-section-label {
+    background: var(--surface2);
+    padding: 8px 18px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: clamp(10px, 2.5vw, 13px) clamp(14px, 4vw, 18px);
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-key {
+    font-size: clamp(0.78rem, 2vw, 0.82rem);
+    color: var(--text2);
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+
+  .summary-val {
+    font-size: clamp(0.82rem, 2vw, 0.88rem);
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+    word-break: break-word;
+    max-width: 60%;
+  }
+
+  .total-hero {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(6,182,212,0.08) 100%);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: var(--radius);
+    padding: clamp(18px, 4vw, 24px);
+    text-align: center;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .total-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 120px;
+    background: radial-gradient(ellipse, rgba(59,130,246,0.12), transparent 70%);
+    pointer-events: none;
+  }
+
+  .total-hero-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .total-hero-amount {
+    font-family: var(--font-head);
+    font-size: clamp(2rem, 7vw, 2.5rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--accent-light), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  .total-hero-sub {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* ── SUCCESS ── */
+  #step-success {
+    text-align: center;
+    padding: clamp(32px, 8vw, 52px) clamp(16px, 5vw, 28px);
+  }
+
+  .success-ring {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.55s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .success-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--green), var(--accent), var(--accent2), var(--green));
+    padding: 3px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .success-inner {
+    width: 78px;
+    height: 78px;
+    background: radial-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  #step-success h2 {
+    font-family: var(--font-head);
+    font-size: clamp(1.4rem, 4vw, 1.7rem);
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+
+  #step-success > p {
+    color: var(--text2);
+    font-size: clamp(0.82rem, 2vw, 0.88rem);
+    line-height: 1.65;
+    margin-bottom: 28px;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+    margin: 0 auto;
   }
 
   /* ── BUTTONS ── */
   .btn {
     width: 100%;
-    padding: 15px 20px;
+    padding: clamp(13px, 3vw, 15px) 20px;
     border-radius: var(--radius-sm);
     font-family: var(--font-body);
-    font-size: 0.95rem;
+    font-size: clamp(0.88rem, 2.2vw, 0.95rem);
     font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all var(--transition);
+    transition: all var(--t);
     -webkit-tap-highlight-color: transparent;
     letter-spacing: 0.01em;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    position: relative;
+    overflow: hidden;
   }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background var(--t);
+    border-radius: inherit;
+  }
+  .btn:hover::before { background: rgba(255,255,255,0.05); }
+  .btn:active::before { background: rgba(0,0,0,0.1); }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #000;
-    box-shadow: 0 4px 20px rgba(0,229,160,0.25);
+    background: linear-gradient(135deg, #2563eb, #3b82f6 50%, #06b6d4);
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(59,130,246,0.28), 0 1px 3px rgba(0,0,0,0.3);
   }
 
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,229,160,0.35); }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(59,130,246,0.35), 0 1px 3px rgba(0,0,0,0.3);
+  }
   .btn-primary:active { transform: translateY(0); }
 
   .btn-secondary {
     background: var(--surface2);
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--border2);
     color: var(--text);
   }
+  .btn-secondary:hover { border-color: rgba(59,130,246,0.4); color: var(--accent-light); }
 
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
 
-  .btn-row {
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    padding: clamp(10px, 2.5vw, 14px) clamp(16px, 4vw, 28px);
+    background: rgba(5,8,16,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    z-index: 90;
+  }
+
+  @media (min-width: 1024px) {
+    .nav-bar {
+      position: sticky;
+      bottom: 0;
+      transform: none;
+      left: auto;
+      backdrop-filter: none;
+      background: rgba(5,8,16,0.98);
+    }
+  }
+
+  .nav-inner {
     display: flex;
     gap: 10px;
-    padding: 0 24px;
-    margin-top: 8px;
-  }
-
-  .btn-row .btn { margin: 0; }
-
-  /* ── SUCCESS SCREEN ── */
-  #step-success {
-    text-align: center;
-    padding: 40px 24px;
-  }
-
-  .success-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 50%;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 2.2rem;
-    margin: 0 auto 24px;
-    box-shadow: 0 0 40px var(--accent-glow);
-    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
   }
 
-  @keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
+  .nav-inner .btn { margin: 0; }
 
-  #step-success h2 {
-    font-family: var(--font-head);
-    font-size: 1.6rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-  }
-
-  #step-success p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 32px; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(120%);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    z-index: 999;
-    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
-    white-space: nowrap;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    max-width: 90vw;
-    white-space: normal;
-    text-align: center;
-  }
-
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.error { border-color: var(--danger); color: var(--danger); }
-  .toast.success { border-color: var(--accent); color: var(--accent); }
-
-  /* ── DIVIDER ── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  /* ── LOADER ── */
   .loader {
     display: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(0,0,0,0.2);
-    border-top-color: #000;
+    width: 17px; height: 17px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
     border-radius: 50%;
-    animation: spin 0.6s linear infinite;
+    animation: spin 0.65s linear infinite;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -620,65 +915,85 @@
   .loading .loader { display: block; }
   .loading .btn-text { display: none; }
 
-  /* ── BOTTOM NAV HINT ── */
-  .bottom-hint {
+  /* ── TOAST ── */
+  .toast {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 12px 24px;
-    background: rgba(10,12,16,0.95);
-    backdrop-filter: blur(16px);
-    border-top: 1px solid var(--border);
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--muted);
-    z-index: 50;
-  }
-
-  /* ── LOAN CALC PREVIEW ── */
-  .calc-preview {
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
     background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    margin-top: 14px;
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 11px 18px;
     font-size: 0.82rem;
-  }
-
-  .calc-row {
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    color: var(--muted);
+    align-items: center;
+    gap: 8px;
+    max-width: min(90vw, 380px);
+    white-space: normal;
+    text-align: center;
+    pointer-events: none;
   }
 
-  .calc-row.total {
-    border-top: 1px solid var(--border);
-    margin-top: 8px;
-    padding-top: 10px;
-    font-weight: 700;
-    color: var(--text);
-    font-size: 0.9rem;
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
-  /* ── ERROR TEXT ── */
-  .err-msg {
-    font-size: 0.72rem;
-    color: var(--danger);
-    margin-top: 4px;
-    display: none;
-  }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+  .toast.success { border-color: rgba(16,185,129,0.4); color: #6ee7b7; }
 
-  .err-msg.visible { display: block; }
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-  /* ── FADE HIDE ── */
+  /* ── MISC ── */
   .hidden { display: none !important; }
 
-  /* Desktop wider */
+  /* ── BADGES ── */
+  .info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(59,130,246,0.07);
+    border: 1px solid rgba(59,130,246,0.14);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 0.68rem;
+    color: var(--accent-light);
+    font-weight: 500;
+    margin-top: 6px;
+  }
+
+  /* ── FOOTER HINT ── */
+  .footer-hint {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    padding: 8px 20px 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+  /* ── RESPONSIVE tweaks ── */
+  @media (max-width: 380px) {
+    .chips-grid { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .chip { padding: 10px 4px; }
+    .chip-icon { font-size: 1.1rem; }
+    .chip-label { font-size: 0.6rem; }
+  }
+
   @media (min-width: 480px) {
-    #app { box-shadow: 0 0 80px rgba(0,0,0,0.6); }
+    .field-row { gap: 16px; }
   }
 </style>
 </head>
@@ -689,105 +1004,161 @@
   <!-- HEADER -->
   <header class="header">
     <div class="logo">
-      <div class="logo-icon">💸</div>
-      <span class="logo-text">KrediSoft</span>
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9.5L12 4L21 9.5V20H3V9.5Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M9 20V13H15V20" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-text">Kredi<span>Soft</span></span>
     </div>
-    <span class="header-badge">Préstamos</span>
+    <div class="header-status"><span>Sistema activo</span></div>
   </header>
 
   <main>
 
     <!-- HERO -->
     <div class="hero">
-      <div class="hero-tag">Solicitud de Crédito</div>
-      <h1>Tu crédito,<br><span>rápido y seguro</span></h1>
-      <p>Completa el formulario y recibe tu propuesta al instante con PDF descargable.</p>
+      <div class="hero-eyebrow">💳 Solicitud de Crédito</div>
+      <h1>Tu préstamo,<br><span class="gradient-text">rápido y seguro</span></h1>
+      <p>Completa el formulario en 4 pasos y recibe tu propuesta al instante con PDF descargable.</p>
     </div>
 
-    <!-- PROGRESS -->
+    <!-- PROGRESS STEPS -->
     <div class="progress-wrap">
-      <div class="progress-labels">
-        <span class="progress-label active" id="pl1">Datos</span>
-        <span class="progress-label" id="pl2">Préstamo</span>
-        <span class="progress-label" id="pl3">Verificación</span>
-        <span class="progress-label" id="pl4">Resumen</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progressBar" style="width:25%"></div>
+      <div class="steps-nav">
+        <div class="step-dot active" id="sd1">
+          <div class="step-dot-circle">1</div>
+          <span class="step-dot-label">Datos</span>
+        </div>
+        <div class="step-connector" id="sc1"><div class="step-connector-fill"></div></div>
+        <div class="step-dot" id="sd2">
+          <div class="step-dot-circle">2</div>
+          <span class="step-dot-label">Préstamo</span>
+        </div>
+        <div class="step-connector" id="sc2"><div class="step-connector-fill"></div></div>
+        <div class="step-dot" id="sd3">
+          <div class="step-dot-circle">3</div>
+          <span class="step-dot-label">Verificar</span>
+        </div>
+        <div class="step-connector" id="sc3"><div class="step-connector-fill"></div></div>
+        <div class="step-dot" id="sd4">
+          <div class="step-dot-circle">4</div>
+          <span class="step-dot-label">Resumen</span>
+        </div>
       </div>
     </div>
 
-    <!-- STEP 1: Datos personales -->
+    <!-- STEP 1 -->
     <div class="step active" id="step1">
-      <div class="section-title">
-        <div class="step-num">1</div>
-        Datos Personales
+      <div class="section-hd">
+        <div class="section-hd-top">
+          <div class="step-badge">01</div>
+          <h2>Datos Personales</h2>
+        </div>
+        <p>Información del solicitante del préstamo.</p>
       </div>
-      <p class="section-desc">Información del solicitante del préstamo.</p>
 
       <div class="card">
         <div class="field">
-          <label>Nombre completo</label>
-          <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name">
-          <span class="err-msg" id="err-nombre">Ingresa tu nombre completo</span>
+          <label>Nombre completo *</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name">
+          </div>
+          <span class="err-msg" id="err-nombre">⚠ Ingresa tu nombre completo</span>
+        </div>
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0">
+            <label>N° Documento *</label>
+            <div class="input-wrap">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="documento" placeholder="CC / NIT" inputmode="numeric">
+            </div>
+            <span class="err-msg" id="err-documento">⚠ Número inválido</span>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Celular *</label>
+            <div class="input-wrap">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="celular" placeholder="300 000 0000" inputmode="tel">
+            </div>
+            <span class="err-msg" id="err-celular">⚠ Celular inválido</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <label>Correo electrónico *</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" inputmode="email">
+          </div>
+          <span class="err-msg" id="err-correo">⚠ Correo inválido</span>
         </div>
         <div class="field">
-          <label>N° de documento (CC/NIT)</label>
-          <input type="text" id="documento" placeholder="Ej. 1234567890" inputmode="numeric">
-          <span class="err-msg" id="err-documento">Ingresa tu número de documento</span>
+          <label>N° Cuenta / Referencia Nequi</label>
+          <div class="input-wrap">
+            <span class="input-icon">🏦</span>
+            <input type="text" id="cuenta" placeholder="Ej. Nequi 3001234567" inputmode="numeric">
+          </div>
         </div>
         <div class="field">
-          <label>N° de cuenta / referencia</label>
-          <input type="text" id="cuenta" placeholder="Ej. Nequi 3001234567" inputmode="numeric">
-        </div>
-        <div class="field">
-          <label>Celular</label>
-          <input type="tel" id="celular" placeholder="Ej. 3001234567" inputmode="tel">
-          <span class="err-msg" id="err-celular">Ingresa un celular válido</span>
-        </div>
-        <div class="field">
-          <label>Correo electrónico</label>
-          <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" inputmode="email">
-          <span class="err-msg" id="err-correo">Ingresa un correo válido</span>
-        </div>
-        <div class="field">
-          <label>Domicilio</label>
-          <textarea id="domicilio" placeholder="Dirección completa, barrio, ciudad..."></textarea>
-          <span class="err-msg" id="err-domicilio">Ingresa tu domicilio</span>
+          <label>Domicilio *</label>
+          <div class="input-wrap">
+            <span class="input-icon" style="top:18px">📍</span>
+            <textarea id="domicilio" placeholder="Dirección, barrio, ciudad..."></textarea>
+          </div>
+          <span class="err-msg" id="err-domicilio">⚠ Ingresa tu domicilio</span>
         </div>
       </div>
     </div>
 
-    <!-- STEP 2: Detalles del préstamo -->
+    <!-- STEP 2 -->
     <div class="step" id="step2">
-      <div class="section-title">
-        <div class="step-num">2</div>
-        Detalles del Préstamo
+      <div class="section-hd">
+        <div class="section-hd-top">
+          <div class="step-badge">02</div>
+          <h2>Detalles del Préstamo</h2>
+        </div>
+        <p>Define el monto y condiciones del crédito.</p>
       </div>
-      <p class="section-desc">Define el monto y condiciones del crédito.</p>
 
       <div class="card">
-        <div class="field">
-          <label>Valor del préstamo (COP)</label>
-          <input type="number" id="monto" placeholder="Ej. 300000" inputmode="numeric" min="10000" step="1000">
-          <span class="err-msg" id="err-monto">Ingresa un monto válido (mín. $10.000)</span>
-        </div>
-        <div class="field">
-          <label>Días a prestar</label>
-          <input type="number" id="dias" placeholder="Ej. 30" inputmode="numeric" min="1" max="365">
-          <span class="err-msg" id="err-dias">Ingresa los días (1-365)</span>
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0">
+            <label>Valor (COP) *</label>
+            <div class="input-wrap">
+              <span class="input-icon">💰</span>
+              <input type="number" id="monto" placeholder="300.000" inputmode="numeric" min="10000" step="1000">
+            </div>
+            <span class="err-msg" id="err-monto">⚠ Mínimo $10.000</span>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Días a prestar *</label>
+            <div class="input-wrap">
+              <span class="input-icon">📅</span>
+              <input type="number" id="dias" placeholder="30" inputmode="numeric" min="1" max="365">
+            </div>
+            <span class="err-msg" id="err-dias">⚠ Entre 1 y 365 días</span>
+          </div>
         </div>
 
-        <div id="calcPreview" class="calc-preview hidden">
-          <div class="calc-row"><span>Capital</span><span id="pCapital">$0</span></div>
-          <div class="calc-row"><span id="pInteresLabel">Interés</span><span id="pInteres">$0</span></div>
+        <div id="calcPreview" class="calc-card hidden">
+          <div class="calc-header">⚡ Simulación en tiempo real</div>
+          <div class="calc-row"><span>Capital prestado</span><span id="pCapital">$0</span></div>
+          <div class="calc-row"><span id="pInteresLabel">Interés estimado</span><span id="pInteres">$0</span></div>
           <div class="calc-row total"><span>Total a pagar</span><span id="pTotal">$0</span></div>
         </div>
       </div>
 
       <div class="card">
-        <p class="section-desc" style="margin-bottom:14px;">¿Cuál es tu relación con el solicitante?</p>
-        <div class="chips" id="chips">
+        <div class="section-hd" style="margin-bottom:14px;">
+          <h2 style="font-size:0.95rem; font-family: var(--font-head);">Relación con el solicitante *</h2>
+          <p style="margin-top:3px;">La tasa de interés varía según la relación.</p>
+        </div>
+        <div class="chips-grid" id="chips">
           <div class="chip" data-rel="conyugue" onclick="selectChip(this)">
             <span class="chip-icon">💍</span>
             <span class="chip-label">Cónyuge</span>
@@ -813,70 +1184,85 @@
             <span class="chip-label">Conocido</span>
           </div>
         </div>
-        <span class="err-msg visible hidden" id="err-relacion">Selecciona una relación</span>
+        <span class="err-msg hidden" id="err-relacion" style="margin-top:10px;">⚠ Selecciona una relación</span>
       </div>
     </div>
 
-    <!-- STEP 3: Verificación de identidad -->
+    <!-- STEP 3 -->
     <div class="step" id="step3">
-      <div class="section-title">
-        <div class="step-num">3</div>
-        Verificación
+      <div class="section-hd">
+        <div class="section-hd-top">
+          <div class="step-badge">03</div>
+          <h2>Verificación de Identidad</h2>
+        </div>
+        <p>Por seguridad, responde estas preguntas de validación.</p>
       </div>
-      <p class="section-desc">Por seguridad, responde estas preguntas de validación.</p>
 
-      <div class="validation-block visible" id="vBlock">
-        <h3>🔐 <span id="vTitle">Preguntas de seguridad</span></h3>
-        <p id="vDesc">Responde correctamente para continuar.</p>
+      <div class="vblock" id="vBlock">
+        <div class="vblock-header">
+          <div class="vblock-icon">🔐</div>
+          <div>
+            <div class="vblock-title" id="vTitle">Preguntas de seguridad</div>
+            <div class="vblock-desc" id="vDesc">Responde correctamente para continuar.</div>
+          </div>
+        </div>
         <div id="vQuestions"></div>
       </div>
     </div>
 
-    <!-- STEP 4: Resumen -->
+    <!-- STEP 4 -->
     <div class="step" id="step4">
-      <div class="section-title">
-        <div class="step-num">4</div>
-        Resumen del Préstamo
-      </div>
-      <p class="section-desc">Revisa toda la información antes de enviar.</p>
-
-      <div class="summary-card" id="summaryCard">
-        <!-- Generado dinámicamente -->
+      <div class="section-hd">
+        <div class="section-hd-top">
+          <div class="step-badge">04</div>
+          <h2>Resumen del Préstamo</h2>
+        </div>
+        <p>Revisa toda la información antes de enviar.</p>
       </div>
 
-      <div class="total-section">
-        <div class="total-label">Total a pagar</div>
-        <div class="total-value" id="summaryTotal">$0</div>
+      <div class="summary-table" id="summaryCard">
+        <!-- dinámico -->
+      </div>
+
+      <div class="total-hero">
+        <div class="total-hero-label">Total a pagar</div>
+        <div class="total-hero-amount" id="summaryTotal">$0</div>
+        <div class="total-hero-sub">Capital + intereses generados</div>
       </div>
     </div>
 
-    <!-- STEP SUCCESS -->
+    <!-- SUCCESS -->
     <div class="step" id="step-success">
-      <div class="success-icon">✅</div>
+      <div class="success-ring">
+        <div class="success-inner">✅</div>
+      </div>
       <h2>¡Solicitud enviada!</h2>
-      <p>Tu propuesta de préstamo fue enviada correctamente. Recibirás respuesta pronto. También puedes descargar el PDF con el resumen completo.</p>
-      <button class="btn btn-primary" onclick="downloadPDF()" style="margin-bottom:12px;">
-        📄 Descargar PDF
-      </button>
-      <button class="btn btn-secondary" onclick="resetForm()">
-        Nueva solicitud
-      </button>
+      <p>Tu propuesta de préstamo fue enviada correctamente. Recibirás respuesta pronto. Descarga el PDF con el resumen completo.</p>
+      <div class="success-actions">
+        <button class="btn btn-primary" onclick="downloadPDF()">
+          📄 Descargar PDF
+        </button>
+        <button class="btn btn-secondary" onclick="resetForm()">
+          ↩ Nueva solicitud
+        </button>
+      </div>
     </div>
 
   </main>
 
-  <!-- BOTTOM BUTTONS -->
-  <div class="btn-row" id="navBtns">
-    <button class="btn btn-secondary" id="btnBack" onclick="prevStep()" style="display:none;">
-      ← Atrás
-    </button>
-    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">
-      <span class="btn-text">Continuar →</span>
-      <div class="loader"></div>
-    </button>
+  <!-- NAV BAR -->
+  <div class="nav-bar" id="navBtns">
+    <div class="nav-inner">
+      <button class="btn btn-secondary" id="btnBack" onclick="prevStep()" style="display:none; flex:0 0 auto; width:auto; padding:13px 18px;">
+        ← Atrás
+      </button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextStep()">
+        <span class="btn-text">Continuar →</span>
+        <div class="loader"></div>
+      </button>
+    </div>
+    <div class="footer-hint">KrediSoft · Gestión de créditos privados</div>
   </div>
-
-  <div class="bottom-hint">KrediSoft · Gestión de créditos privados</div>
 
 </div>
 
@@ -885,47 +1271,45 @@
 
 <script>
 // ════════════════════════════════════════════
-//  CONFIGURACIÓN (OCULTA AL USUARIO)
+//  CONFIG
 // ════════════════════════════════════════════
 const RATES = {
-  conyugue:    0.0035,
-  familiar:    0.0045,
-  amigo:       0.0055,
-  hermano_fe:  0.0045,
-  colega:      0.0045,
-  conocido:    0.0070,
+  conyugue:   0.0035,
+  familiar:   0.0045,
+  amigo:      0.0055,
+  hermano_fe: 0.0045,
+  colega:     0.0045,
+  conocido:   0.0070,
 };
 
-// Bot de Telegram
 const TG_BOT_TOKEN = '8536566578:AAG42YyO1TFdWNFxRywV2Wp097Zld5s-Oog';
 const TG_CHAT_ID   = 'T7941395763';
 
-// Validaciones por relación
 const VALIDATIONS = {
   conyugue: {
     title: 'Validación — Cónyuge',
     desc: 'Para proceder, responde correctamente estas preguntas personales.',
     questions: [
-      { q: '¿Cuál es mi color favorito?',           key: 'conyugue_1', answer: 'rojo' },
-      { q: '¿Cuál es mi fecha de cumpleaños?',       key: 'conyugue_2', answer: '20-07-2003' },
-      { q: '¿Qué me gusta de comida rápida?',        key: 'conyugue_3', answer: 'picada' },
-      { q: '¿Cuál es mi estatura?',                  key: 'conyugue_4', answer: '1.78' },
+      { q: '¿Cuál es mi color favorito?',        key: 'conyugue_1', answer: 'rojo' },
+      { q: '¿Cuál es mi fecha de cumpleaños?',   key: 'conyugue_2', answer: '20-07-2003' },
+      { q: '¿Qué me gusta de comida rápida?',    key: 'conyugue_3', answer: 'picada' },
+      { q: '¿Cuál es mi estatura?',              key: 'conyugue_4', answer: '1.78' },
     ]
   },
   conocido: {
     title: 'Validación — Conocido',
     desc: 'Verifica que realmente me conoces.',
     questions: [
-      { q: '¿Cuál es mi nombre?',          key: 'conocido_1', answer: 'joel pineda' },
-      { q: '¿De qué color son mis ojos?',  key: 'conocido_2', answer: 'azules' },
+      { q: '¿Cuál es mi nombre?',         key: 'conocido_1', answer: 'joel pineda' },
+      { q: '¿De qué color son mis ojos?', key: 'conocido_2', answer: 'azules' },
     ]
   },
   hermano_fe: {
     title: 'Validación — Hermano en la Fe',
     desc: 'Responde sobre tu conocimiento de mi ministerio.',
     questions: [
-      { q: '¿Qué hago en la iglesia?',      key: 'hermano_1', answer: 'musico' },
-      { q: '¿Qué instrumento toco?',         key: 'hermano_2', answer: 'bajo' },
+      { q: '¿Qué hago en la iglesia?',  key: 'hermano_1', answer: 'musico' },
+      { q: '¿Qué instrumento toco?',    key: 'hermano_2', answer: 'bajo' },
     ]
   },
   amigo: {
@@ -940,8 +1324,8 @@ const VALIDATIONS = {
     desc: 'Confirma que eres parte de mi familia.',
     questions: [
       { q: '¿Cuál es mi fecha de cumpleaños?', key: 'familiar_1', answer: '20-07-2003' },
-      { q: '¿Qué moto tengo?',                  key: 'familiar_2', answer: 'raider' },
-      { q: '¿Qué estudio?',                      key: 'familiar_3', answer: 'ingenieria de sistemas' },
+      { q: '¿Qué moto tengo?',                 key: 'familiar_2', answer: 'raider' },
+      { q: '¿Qué estudio?',                    key: 'familiar_3', answer: 'ingenieria de sistemas' },
     ]
   },
   colega: {
@@ -962,7 +1346,7 @@ let validationPassed = false;
 let loanData = {};
 
 // ════════════════════════════════════════════
-//  UTILIDADES
+//  UTILS
 // ════════════════════════════════════════════
 const fmt = n => new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(n);
 const $ = id => document.getElementById(id);
@@ -976,14 +1360,13 @@ function showToast(msg, type='') {
 }
 
 // ════════════════════════════════════════════
-//  CÁLCULO DE PRÉSTAMO
+//  CÁLCULO
 // ════════════════════════════════════════════
 function calcLoan() {
   const monto = parseFloat($('monto').value) || 0;
-  const dias   = parseInt($('dias').value)   || 0;
+  const dias  = parseInt($('dias').value)   || 0;
   if (!selectedRelation || monto < 1 || dias < 1) {
-    $('calcPreview').classList.add('hidden');
-    return null;
+    $('calcPreview').classList.add('hidden'); return null;
   }
   const rate   = RATES[selectedRelation];
   const interes = monto * rate * dias;
@@ -1002,10 +1385,8 @@ function updateCalcPreview() {
   $('pTotal').textContent        = fmt(r.total);
 }
 
-['monto','dias'].forEach(id => $('input-change-' + id) || document.getElementById(id)?.addEventListener('input', updateCalcPreview));
-
 // ════════════════════════════════════════════
-//  CHIPS DE RELACIÓN
+//  CHIPS
 // ════════════════════════════════════════════
 function selectChip(el) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
@@ -1016,21 +1397,17 @@ function selectChip(el) {
 }
 
 // ════════════════════════════════════════════
-//  GENERADOR DE PREGUNTAS
+//  VALIDACIONES UI
 // ════════════════════════════════════════════
 function buildValidationUI() {
   if (!selectedRelation || !VALIDATIONS[selectedRelation]) {
-    // Sin validación especial (no debería ocurrir con config actual)
-    validationPassed = true;
-    return;
+    validationPassed = true; return;
   }
   const cfg = VALIDATIONS[selectedRelation];
   $('vTitle').textContent = cfg.title;
   $('vDesc').textContent  = cfg.desc;
-
   const container = $('vQuestions');
   container.innerHTML = '';
-
   cfg.questions.forEach((qObj, i) => {
     const wrap = document.createElement('div');
     wrap.className = 'field';
@@ -1045,18 +1422,15 @@ function buildValidationUI() {
 
 function checkValidation() {
   if (!selectedRelation || !VALIDATIONS[selectedRelation]) {
-    validationPassed = true;
-    return true;
+    validationPassed = true; return true;
   }
   const cfg = VALIDATIONS[selectedRelation];
   let allOk = true;
-
   cfg.questions.forEach((qObj, i) => {
     const input = $(`vq_${i}`);
     const errEl = $(`ve_${i}`);
     if (!input) return;
     const val = input.value.trim().toLowerCase();
-
     let ok = false;
     if (qObj.multi) {
       ok = qObj.multi.some(a => val.includes(a.toLowerCase()));
@@ -1064,7 +1438,6 @@ function checkValidation() {
       ok = val === qObj.answer.toLowerCase() ||
            val.replace(/[^a-z0-9]/g,'') === qObj.answer.replace(/[^a-z0-9]/g,'');
     }
-
     if (!ok) {
       errEl.textContent = '❌ Respuesta incorrecta';
       errEl.classList.add('visible');
@@ -1072,18 +1445,17 @@ function checkValidation() {
       allOk = false;
     } else {
       errEl.textContent = '✅ Correcto';
-      errEl.style.color = 'var(--accent)';
+      errEl.style.color = 'var(--green)';
       errEl.classList.add('visible');
       input.classList.remove('error');
     }
   });
-
   validationPassed = allOk;
   return allOk;
 }
 
 // ════════════════════════════════════════════
-//  VALIDACIÓN CAMPOS PASO 1
+//  VALIDACIÓN PASO 1 y 2
 // ════════════════════════════════════════════
 function validateStep1() {
   let ok = true;
@@ -1112,30 +1484,24 @@ function validateStep1() {
 function validateStep2() {
   let ok = true;
   const monto = parseFloat($('monto').value);
-  const dias   = parseInt($('dias').value);
-
+  const dias  = parseInt($('dias').value);
   if (!monto || monto < 10000) {
     $('err-monto').classList.add('visible');
-    $('monto').classList.add('error');
-    ok = false;
+    $('monto').classList.add('error'); ok = false;
   } else {
     $('err-monto').classList.remove('visible');
     $('monto').classList.remove('error');
   }
-
   if (!dias || dias < 1 || dias > 365) {
     $('err-dias').classList.add('visible');
-    $('dias').classList.add('error');
-    ok = false;
+    $('dias').classList.add('error'); ok = false;
   } else {
     $('err-dias').classList.remove('visible');
     $('dias').classList.remove('error');
   }
-
   if (!selectedRelation) {
     $('err-relacion').classList.remove('hidden');
-    $('err-relacion').classList.add('visible');
-    ok = false;
+    $('err-relacion').classList.add('visible'); ok = false;
   } else {
     $('err-relacion').classList.add('hidden');
   }
@@ -1143,53 +1509,61 @@ function validateStep2() {
 }
 
 // ════════════════════════════════════════════
-//  CONSTRUCCIÓN DEL RESUMEN
+//  RESUMEN
 // ════════════════════════════════════════════
 function buildSummary() {
   const r = calcLoan();
   if (!r) return;
-
   const relLabels = {
     conyugue:'Cónyuge', familiar:'Familiar', amigo:'Amigo/a',
     hermano_fe:'Hermano en la Fe', colega:'Colega', conocido:'Conocido'
   };
 
-  const rows = [
-    { k:'Nombre',           v: $('nombre').value.trim() },
-    { k:'Documento',        v: $('documento').value.trim() },
-    { k:'N° Cuenta',        v: $('cuenta').value.trim() || '—' },
-    { k:'Celular',          v: $('celular').value.trim() },
-    { k:'Correo',           v: $('correo').value.trim() },
-    { k:'Domicilio',        v: $('domicilio').value.trim() },
-    { k:'Capital solicitado', v: fmt(r.monto), highlight: false },
-    { k:'Días del crédito', v: r.dias + ' días' },
-    { k:'Relación',         v: relLabels[selectedRelation] || selectedRelation },
-    { k:'Interés estimado', v: fmt(r.interes) },
+  const personalRows = [
+    { k:'Nombre completo', v: $('nombre').value.trim() },
+    { k:'Documento',       v: $('documento').value.trim() },
+    { k:'N° Cuenta',       v: $('cuenta').value.trim() || '—' },
+    { k:'Celular',         v: $('celular').value.trim() },
+    { k:'Correo',          v: $('correo').value.trim() },
+    { k:'Domicilio',       v: $('domicilio').value.trim() },
+  ];
+
+  const creditRows = [
+    { k:'Relación',           v: relLabels[selectedRelation] || selectedRelation },
+    { k:'Capital solicitado', v: fmt(r.monto) },
+    { k:'Días del crédito',   v: r.dias + ' días' },
+    { k:'Interés estimado',   v: fmt(r.interes) },
   ];
 
   const card = $('summaryCard');
-  card.innerHTML = rows.map(row => `
-    <div class="summary-row">
-      <span class="summary-key">${row.k}</span>
-      <span class="summary-val ${row.highlight ? 'highlight' : ''}">${row.v}</span>
-    </div>
-  `).join('');
+  card.innerHTML = `
+    <div class="summary-section-label">Datos del Solicitante</div>
+    ${personalRows.map(row => `
+      <div class="summary-row">
+        <span class="summary-key">${row.k}</span>
+        <span class="summary-val">${row.v}</span>
+      </div>
+    `).join('')}
+    <div class="summary-section-label" style="border-top:1px solid var(--border)">Detalles del Crédito</div>
+    ${creditRows.map(row => `
+      <div class="summary-row">
+        <span class="summary-key">${row.k}</span>
+        <span class="summary-val">${row.v}</span>
+      </div>
+    `).join('')}
+  `;
 
   $('summaryTotal').textContent = fmt(r.total);
 
-  // Guardar para PDF
   loanData = {
-    nombre: $('nombre').value.trim(),
-    documento: $('documento').value.trim(),
-    cuenta: $('cuenta').value.trim() || '—',
-    celular: $('celular').value.trim(),
-    correo: $('correo').value.trim(),
-    domicilio: $('domicilio').value.trim(),
+    nombre:   $('nombre').value.trim(),
+    documento:$('documento').value.trim(),
+    cuenta:   $('cuenta').value.trim() || '—',
+    celular:  $('celular').value.trim(),
+    correo:   $('correo').value.trim(),
+    domicilio:$('domicilio').value.trim(),
     relacion: relLabels[selectedRelation],
-    monto: r.monto,
-    dias: r.dias,
-    interes: r.interes,
-    total: r.total,
+    monto: r.monto, dias: r.dias, interes: r.interes, total: r.total,
   };
 }
 
@@ -1201,7 +1575,7 @@ function setStep(n) {
   const el = n === 'success' ? $('step-success') : $('step' + n);
   if (el) el.classList.add('active');
 
-  const btn = $('btnNext');
+  const btn  = $('btnNext');
   const back = $('btnBack');
   const nav  = $('navBtns');
 
@@ -1210,24 +1584,28 @@ function setStep(n) {
   } else {
     nav.classList.remove('hidden');
     back.style.display = (n > 1) ? 'flex' : 'none';
-    btn.innerHTML = n === 4
-      ? '<span class="btn-text">Enviar solicitud 🚀</span><div class="loader"></div>'
-      : '<span class="btn-text">Continuar →</span><div class="loader"></div>';
+    btn.querySelector('.btn-text').textContent = n === 4 ? 'Enviar solicitud 🚀' : 'Continuar →';
   }
 
-  // Progress
-  const pcts = { 1:25, 2:50, 3:75, 4:100 };
-  if (pcts[n]) $('progressBar').style.width = pcts[n] + '%';
-  ['pl1','pl2','pl3','pl4'].forEach((id, i) => {
-    $(id).classList.toggle('active', i + 1 <= n);
+  // Actualizar dots
+  [1,2,3,4].forEach(i => {
+    const dot = $('sd' + i);
+    dot.classList.remove('active','done');
+    if (i < n) dot.classList.add('done');
+    else if (i === n) dot.classList.add('active');
+  });
+  // Actualizar connectors
+  [1,2,3].forEach(i => {
+    const con = $('sc' + i);
+    con.classList.toggle('done', i < n);
   });
 
   currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function nextStep() {
   const btn = $('btnNext');
-
   if (currentStep === 1) {
     if (!validateStep1()) { showToast('⚠️ Completa todos los campos requeridos', 'error'); return; }
     setStep(2);
@@ -1240,14 +1618,12 @@ function nextStep() {
     buildSummary();
     setStep(4);
   } else if (currentStep === 4) {
-    // Enviar
     btn.classList.add('loading');
     sendToTelegram().then(() => {
       btn.classList.remove('loading');
       setStep('success');
     }).catch(() => {
       btn.classList.remove('loading');
-      // Igual pasamos a éxito para descargar PDF
       setStep('success');
     });
   }
@@ -1266,7 +1642,6 @@ async function sendToTelegram() {
     conyugue:'Cónyuge', familiar:'Familiar', amigo:'Amigo/a',
     hermano_fe:'Hermano en la Fe', colega:'Colega', conocido:'Conocido'
   };
-
   const msg = `
 💸 *KrediSoft — Nueva Solicitud*
 
@@ -1287,7 +1662,6 @@ Interés total: ${fmt(r.interes)}
 
 📅 Fecha: ${new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'})}
   `.trim();
-
   const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
   return fetch(url, {
     method: 'POST',
@@ -1297,106 +1671,186 @@ Interés total: ${fmt(r.interes)}
 }
 
 // ════════════════════════════════════════════
-//  PDF
+//  PDF — Rediseñado profesional
 // ════════════════════════════════════════════
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
 
-  const W = 210, margin = 18;
+  const W = 210, H = 297, M = 20;
+  const contentW = W - M*2;
   let y = 0;
 
-  // Fondo header
-  doc.setFillColor(10, 12, 16);
-  doc.rect(0, 0, W, 44, 'F');
+  // ── Fondo completo
+  doc.setFillColor(5, 8, 16);
+  doc.rect(0, 0, W, H, 'F');
 
-  // Logo text
+  // ── Header gradiente
+  doc.setFillColor(13, 17, 23);
+  doc.rect(0, 0, W, 52, 'F');
+
+  // Línea decorativa top
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.8);
+  doc.line(0, 0, W, 0);
+
+  // Logo bloque
+  doc.setFillColor(37, 99, 235);
+  doc.roundedRect(M, 14, 10, 10, 2, 2, 'F');
+
+  // Nombre app
   doc.setFont('helvetica','bold');
-  doc.setFontSize(22);
-  doc.setTextColor(0, 229, 160);
-  doc.text('KrediSoft', margin, 22);
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.text('KrediSoft', M + 14, 22);
 
   doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.setTextColor(107, 114, 128);
-  doc.text('Gestión de Créditos Privados', margin, 30);
+  doc.setFontSize(8);
+  doc.setTextColor(100, 130, 165);
+  doc.text('Gestión de Créditos Privados', M + 14, 28.5);
 
-  // Fecha y folio
+  // Folio + fecha (derecha)
   const fecha = new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'});
   const folio = 'KS-' + Date.now().toString().slice(-7);
-  doc.setFontSize(8);
-  doc.setTextColor(107, 114, 128);
-  doc.text(`Fecha: ${fecha}`, W - margin, 22, { align:'right' });
-  doc.text(`Folio: ${folio}`, W - margin, 29, { align:'right' });
 
-  y = 52;
-
-  // Título sección
-  const sectionTitle = (title) => {
-    doc.setFillColor(28, 32, 48);
-    doc.roundedRect(margin, y, W - margin*2, 8, 2, 2, 'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9);
-    doc.setTextColor(0, 229, 160);
-    doc.text(title, margin + 4, y + 5.5);
-    y += 13;
-  };
-
-  const row = (label, value) => {
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.text(label, margin + 2, y);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(30, 30, 40);
-    const lines = doc.splitTextToSize(String(value), 90);
-    doc.text(lines, W/2, y);
-    doc.setDrawColor(230, 230, 230);
-    doc.line(margin, y + 2.5, W - margin, y + 2.5);
-    y += 9;
-  };
-
-  sectionTitle('DATOS DEL SOLICITANTE');
-  row('Nombre completo', loanData.nombre);
-  row('N° Documento', loanData.documento);
-  row('N° Cuenta / Referencia', loanData.cuenta);
-  row('Celular', loanData.celular);
-  row('Correo electrónico', loanData.correo);
-  row('Domicilio', loanData.domicilio);
-
-  y += 4;
-  sectionTitle('DETALLES DEL CRÉDITO');
-  row('Relación con prestamista', loanData.relacion);
-  row('Capital solicitado', fmt(loanData.monto));
-  row('Días del crédito', loanData.dias + ' días');
-  row('Interés generado', fmt(loanData.interes));
-
-  // Total
-  y += 4;
-  doc.setFillColor(0, 229, 160);
-  doc.roundedRect(margin, y, W - margin*2, 18, 3, 3, 'F');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 130, 165);
+  doc.text('FOLIO', W - M, 15, { align:'right' });
   doc.setFont('helvetica','bold');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text('TOTAL A PAGAR', margin + 6, y + 7);
-  doc.setFontSize(14);
-  doc.text(fmt(loanData.total), W - margin - 4, y + 11, { align:'right' });
+  doc.setFontSize(9);
+  doc.setTextColor(96, 165, 250);
+  doc.text(folio, W - M, 21, { align:'right' });
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 130, 165);
+  doc.text(fecha, W - M, 27.5, { align:'right' });
+
+  // Separador header
+  doc.setDrawColor(36, 45, 64);
+  doc.setLineWidth(0.4);
+  doc.line(M, 50, W - M, 50);
+
+  y = 62;
+
+  // ── Título documento
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(240, 244, 255);
+  doc.text('PROPUESTA DE CRÉDITO PRIVADO', W/2, y, { align:'center' });
+  y += 6;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(100, 130, 165);
+  doc.text('Documento generado automáticamente por KrediSoft', W/2, y, { align:'center' });
+  y += 12;
+
+  // ── Función: bloque de sección
+  const drawSection = (title) => {
+    doc.setFillColor(22, 27, 39);
+    doc.roundedRect(M, y, contentW, 9, 2, 2, 'F');
+    doc.setFillColor(59, 130, 246);
+    doc.roundedRect(M, y, 3, 9, 1, 1, 'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(96, 165, 250);
+    doc.text(title.toUpperCase(), M + 7, y + 6);
+    y += 15;
+  };
+
+  // ── Función: fila de datos
+  const drawRow = (label, value, last=false) => {
+    const rowH = 8.5;
+    // fondo alterno sutil
+    doc.setFillColor(13, 17, 23);
+    doc.rect(M, y - 3, contentW, rowH + 1, 'F');
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 130, 165);
+    doc.text(label, M + 4, y + 2.5);
+
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(220, 230, 255);
+    const maxW = contentW / 2 - 6;
+    const lines = doc.splitTextToSize(String(value), maxW);
+    doc.text(lines, W/2 + 2, y + 2.5);
+
+    if (!last) {
+      doc.setDrawColor(30, 40, 58);
+      doc.setLineWidth(0.3);
+      doc.line(M + 4, y + rowH - 1, W - M - 4, y + rowH - 1);
+    }
+    y += rowH + (lines.length - 1) * 4;
+  };
+
+  // ── SECCIÓN: Datos del Solicitante
+  drawSection('Datos del Solicitante');
+  drawRow('Nombre completo',        loanData.nombre);
+  drawRow('N° de Documento',        loanData.documento);
+  drawRow('N° Cuenta / Referencia', loanData.cuenta);
+  drawRow('Celular',                loanData.celular);
+  drawRow('Correo electrónico',     loanData.correo);
+  drawRow('Domicilio',              loanData.domicilio, true);
+
+  y += 6;
+
+  // ── SECCIÓN: Detalles del Crédito
+  drawSection('Detalles del Crédito');
+  drawRow('Relación con prestamista', loanData.relacion);
+  drawRow('Capital solicitado',       fmt(loanData.monto));
+  drawRow('Período del crédito',      loanData.dias + ' días');
+  drawRow('Interés generado',         fmt(loanData.interes), true);
+
+  y += 8;
+
+  // ── TOTAL A PAGAR (hero block)
+  doc.setFillColor(15, 30, 60);
+  doc.roundedRect(M, y, contentW, 22, 4, 4, 'F');
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(M, y, contentW, 22, 4, 4, 'S');
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(96, 165, 250);
+  doc.text('TOTAL A PAGAR', M + 8, y + 9);
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.setTextColor(255, 255, 255);
+  doc.text(fmt(loanData.total), W - M - 6, y + 15, { align:'right' });
+
+  y += 30;
+
+  // ── NOTA LEGAL
+  doc.setFillColor(18, 22, 32);
+  doc.roundedRect(M, y, contentW, 18, 3, 3, 'F');
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7);
+  doc.setTextColor(100, 130, 165);
+  doc.text('⚠ AVISO LEGAL', M + 5, y + 6);
+
+  doc.setFont('helvetica','italic');
+  doc.setFontSize(6.8);
+  doc.setTextColor(80, 100, 130);
+  const nota = 'Este documento es una propuesta de crédito privado generada por KrediSoft. Las condiciones definitivas quedan sujetas a acuerdo entre las partes. KrediSoft no es una entidad financiera regulada.';
+  const notaLines = doc.splitTextToSize(nota, contentW - 10);
+  doc.text(notaLines, M + 5, y + 12);
   y += 26;
 
-  // Nota legal
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(7.5);
-  doc.setTextColor(150, 150, 150);
-  const nota = 'Este documento es una propuesta de crédito privado generada por KrediSoft. Las condiciones definitivas quedan sujetas a acuerdo entre las partes. KrediSoft no es una entidad financiera regulada.';
-  const notaLines = doc.splitTextToSize(nota, W - margin*2);
-  doc.text(notaLines, margin, y);
-  y += notaLines.length * 4 + 4;
+  // ── FOOTER
+  doc.setDrawColor(36, 45, 64);
+  doc.setLineWidth(0.3);
+  doc.line(M, y, W - M, y);
+  y += 5;
 
-  // Firma
   doc.setFont('helvetica','normal');
-  doc.setFontSize(7);
-  doc.setTextColor(180, 180, 180);
-  doc.text('Generado por KrediSoft App · ' + new Date().toLocaleString('es-CO'), W/2, y, { align:'center' });
+  doc.setFontSize(6.5);
+  doc.setTextColor(60, 80, 110);
+  doc.text('Generado por KrediSoft App  ·  ' + new Date().toLocaleString('es-CO') + '  ·  ' + folio, W/2, y, { align:'center' });
 
   doc.save(`KrediSoft_${loanData.nombre.replace(/\s+/g,'_')}_${folio}.pdf`);
   showToast('📄 PDF descargado exitosamente', 'success');
@@ -1419,7 +1873,7 @@ function resetForm() {
 }
 
 // ════════════════════════════════════════════
-//  LISTENERS EN TIEMPO REAL
+//  LISTENERS
 // ════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   $('monto').addEventListener('input', updateCalcPreview);
