@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>KrediSoft — Préstamos Inteligentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #13161d;
+    --surface2: #1c2030;
+    --border: #252a38;
+    --accent: #00e5a0;
+    --accent2: #00b8ff;
+    --accent-glow: rgba(0,229,160,0.18);
+    --danger: #ff4d6d;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --white: #ffffff;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --transition: 0.22s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── APP SHELL ── */
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,16,0.8);
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo-text {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN ── */
+  main { flex: 1; padding: 0 0 100px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 32px 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(0,229,160,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    padding: 0 24px 20px;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color var(--transition);
+  }
+
+  .progress-label.active { color: var(--accent); }
+
+  .progress-bar-bg {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  /* ── STEPS ── */
+  .step { display: none; padding: 0 24px; animation: slideIn 0.3s ease; }
+  .step.active { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .step-num {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #000;
+    flex-shrink: 0;
+  }
+
+  .section-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: border-color var(--transition);
+  }
+
+  .card:focus-within {
+    border-color: rgba(0,229,160,0.4);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.07);
+  }
+
+  /* ── INPUTS ── */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+  }
+
+  input.error { border-color: var(--danger); }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  select option { background: var(--surface); color: var(--text); }
+
+  textarea { resize: none; height: 80px; }
+
+  /* ── AMOUNT DISPLAY ── */
+  .amount-display {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .amount-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+  .amount-value {
+    font-family: var(--font-head);
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── RELATION CHIPS ── */
+  .chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .chip .chip-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+  .chip .chip-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+
+  .chip.selected {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+  }
+
+  .chip.selected .chip-label { color: var(--accent); }
+
+  /* ── VALIDATION BLOCK ── */
+  .validation-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .validation-block.visible { display: block; }
+
+  .validation-block h3 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .validation-block p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .validation-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .status-dot.ok { background: var(--accent); }
+  .status-dot.fail { background: var(--danger); }
+
+  /* ── SUMMARY CARD ── */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+
+  .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .summary-key { color: var(--muted); font-weight: 400; }
+  .summary-val { font-weight: 600; color: var(--text); text-align: right; max-width: 55%; word-break: break-word; }
+  .summary-val.highlight {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: var(--font-head);
+    font-size: 1rem;
+  }
+
+  .total-section {
+    background: rgba(0,229,160,0.06);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  .total-label { font-size: 0.72rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; font-weight: 600; }
+
+  .total-value {
+    font-family: var(--font-head);
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0,229,160,0.25);
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,229,160,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 24px;
+    margin-top: 8px;
+  }
+
+  .btn-row .btn { margin: 0; }
+
+  /* ── SUCCESS SCREEN ── */
+  #step-success {
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 40px var(--accent-glow);
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  #step-success h2 {
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  #step-success p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 32px; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 90vw;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+  .toast.success { border-color: var(--accent); color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* ── LOADER ── */
+  .loader {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading .loader { display: block; }
+  .loading .btn-text { display: none; }
+
+  /* ── BOTTOM NAV HINT ── */
+  .bottom-hint {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    background: rgba(10,12,16,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    z-index: 50;
+  }
+
+  /* ── LOAN CALC PREVIEW ── */
+  .calc-preview {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-top: 14px;
+    font-size: 0.82rem;
+  }
+
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: var(--muted);
+  }
+
+  .calc-row.total {
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 10px;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  /* ── ERROR TEXT ── */
+  .err-msg {
+    font-size: 0.72rem;
+    color: var(--danger);
+    margin-top: 4px;
+    display: none;
+  }
+
+  .err-msg.visible { display: block; }
+
+  /* ── FADE HIDE ── */
+  .hidden { display: none !important; }
+
+  /* Desktop wider */
+  @media (min-width: 480px) {
+    #app { box-shadow: 0 0 80px rgba(0,0,0,0.6); }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">💸</div>
+      <span class="logo-text">KrediSoft</span>
+    </div>
+    <span class="header-badge">Préstamos</span>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-tag">Solicitud de Crédito</div>
+      <h1>Tu crédito,<br><span>rápido y seguro</span></h1>
+      <p>Completa el formulario y recibe tu propuesta al instante con PDF descargable.</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span class="progress-label active" id="pl1">Datos</span>
+        <span class="progress-label" id="pl2">Préstamo</span>
+        <span class="progress-label" id="pl3">Verificación</span>
+        <span class="progress-label" id="pl4">Resumen</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar" style="width:25%"></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Datos personales -->
+    <div class="step active" id="step1">
+      <div class="section-title">
+        <div class="step-num">1</div>
+        Datos Personales
+      </div>
+      <p class="section-desc">Información del solicitante del préstamo.</p>
+
+      <div class="card">
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name">
+          <span class="err-msg" id="err-nombre">Ingresa tu nombre completo</span>
+        </div>
+        <div class="field">
+          <label>N° de documento (CC/NIT)</label>
+          <input type="text" id="documento" placeholder="Ej. 1234567890" inputmode="numeric">
+          <span class="err-msg" id="err-documento">Ingresa tu número de documento</span>
+        </div>
+        <div class="field">
+          <label>N° de cuenta / referencia</label>
+          <input type="text" id="cuenta" placeholder="Ej. Nequi 3001234567" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Celular</label>
+          <input type="tel" id="celular" placeholder="Ej. 3001234567" inputmode="tel">
+          <span class="err-msg" id="err-celular">Ingresa un celular válido</span>
+        </div>
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" inputmode="email">
+          <span class="err-msg" id="err-correo">Ingresa un correo válido</span>
+        </div>
+        <div class="field">
+          <label>Domicilio</label>
+          <textarea id="domicilio" placeholder="Dirección completa, barrio, ciudad..."></textarea>
+          <span class="err-msg" id="err-domicilio">Ingresa tu domicilio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Detalles del préstamo -->
+    <div class="step" id="step2">
+      <div class="section-title">
+        <div class="step-num">2</div>
+        Detalles del Préstamo
+      </div>
+      <p class="section-desc">Define el monto y condiciones del crédito.</p>
+
+      <div class="card">
+        <div class="field">
+          <label>Valor del préstamo (COP)</label>
+          <input type="number" id="monto" placeholder="Ej. 300000" inputmode="numeric" min="10000" step="1000">
+          <span class="err-msg" id="err-monto">Ingresa un monto válido (mín. $10.000)</span>
+        </div>
+        <div class="field">
+          <label>Días a prestar</label>
+          <input type="number" id="dias" placeholder="Ej. 30" inputmode="numeric" min="1" max="365">
+          <span class="err-msg" id="err-dias">Ingresa los días (1-365)</span>
+        </div>
+
+        <div id="calcPreview" class="calc-preview hidden">
+          <div class="calc-row"><span>Capital</span><span id="pCapital">$0</span></div>
+          <div class="calc-row"><span id="pInteresLabel">Interés</span><span id="pInteres">$0</span></div>
+          <div class="calc-row total"><span>Total a pagar</span><span id="pTotal">$0</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-desc" style="margin-bottom:14px;">¿Cuál es tu relación con el solicitante?</p>
+        <div class="chips" id="chips">
+          <div class="chip" data-rel="conyugue" onclick="selectChip(this)">
+            <span class="chip-icon">💍</span>
+            <span class="chip-label">Cónyuge</span>
+          </div>
+          <div class="chip" data-rel="familiar" onclick="selectChip(this)">
+            <span class="chip-icon">👨‍👩‍👧</span>
+            <span class="chip-label">Familiar</span>
+          </div>
+          <div class="chip" data-rel="amigo" onclick="selectChip(this)">
+            <span class="chip-icon">🤝</span>
+            <span class="chip-label">Amigo/a</span>
+          </div>
+          <div class="chip" data-rel="hermano_fe" onclick="selectChip(this)">
+            <span class="chip-icon">✝️</span>
+            <span class="chip-label">Hermano en la Fe</span>
+          </div>
+          <div class="chip" data-rel="colega" onclick="selectChip(this)">
+            <span class="chip-icon">💼</span>
+            <span class="chip-label">Colega</span>
+          </div>
+          <div class="chip" data-rel="conocido" onclick="selectChip(this)">
+            <span class="chip-icon">👋</span>
+            <span class="chip-label">Conocido</span>
+          </div>
+        </div>
+        <span class="err-msg visible hidden" id="err-relacion">Selecciona una relación</span>
+      </div>
+    </div>
+
+    <!-- STEP 3: Verificación de identidad -->
+    <div class="step" id="step3">
+      <div class="section-title">
+        <div class="step-num">3</div>
+        Verificación
+      </div>
+      <p class="section-desc">Por seguridad, responde estas preguntas de validación.</p>
+
+      <div class="validation-block visible" id="vBlock">
+        <h3>🔐 <span id="vTitle">Preguntas de seguridad</span></h3>
+        <p id="vDesc">Responde correctamente para continuar.</p>
+        <div id="vQuestions"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Resumen -->
+    <div class="step" id="step4">
+      <div class="section-title">
+        <div class="step-num">4</div>
+        Resumen del Préstamo
+      </div>
+      <p class="section-desc">Revisa toda la información antes de enviar.</p>
+
+      <div class="summary-card" id="summaryCard">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="total-section">
+        <div class="total-label">Total a pagar</div>
+        <div class="total-value" id="summaryTotal">$0</div>
+      </div>
+    </div>
+
+    <!-- STEP SUCCESS -->
+    <div class="step" id="step-success">
+      <div class="success-icon">✅</div>
+      <h2>¡Solicitud enviada!</h2>
+      <p>Tu propuesta de préstamo fue enviada correctamente. Recibirás respuesta pronto. También puedes descargar el PDF con el resumen completo.</p>
+      <button class="btn btn-primary" onclick="downloadPDF()" style="margin-bottom:12px;">
+        📄 Descargar PDF
+      </button>
+      <button class="btn btn-secondary" onclick="resetForm()">
+        Nueva solicitud
+      </button>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM BUTTONS -->
+  <div class="btn-row" id="navBtns">
+    <button class="btn btn-secondary" id="btnBack" onclick="prevStep()" style="display:none;">
+      ← Atrás
+    </button>
+    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">
+      <span class="btn-text">Continuar →</span>
+      <div class="loader"></div>
+    </button>
+  </div>
+
+  <div class="bottom-hint">KrediSoft · Gestión de créditos privados</div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIGURACIÓN (OCULTA AL USUARIO)
+// ════════════════════════════════════════════
+const RATES = {
+  conyugue:    0.0035,
+  familiar:    0.0045,
+  amigo:       0.0055,
+  hermano_fe:  0.0045,
+  colega:      0.0045,
+  conocido:    0.0070,
+};
+
+// Bot de Telegram
+const TG_BOT_TOKEN = 'TU_BOT_TOKEN_AQUI';
+const TG_CHAT_ID   = 'TU_CHAT_ID_AQUI';
+
+// Validaciones por relación
+const VALIDATIONS = {
+  conyugue: {
+    title: 'Validación — Cónyuge',
+    desc: 'Para proceder, responde correctamente estas preguntas personales.',
+    questions: [
+      { q: '¿Cuál es mi color favorito?',           key: 'conyugue_1', answer: 'rojo' },
+      { q: '¿Cuál es mi fecha de cumpleaños?',       key: 'conyugue_2', answer: '20-07-2003' },
+      { q: '¿Qué me gusta de comida rápida?',        key: 'conyugue_3', answer: 'picada' },
+      { q: '¿Cuál es mi estatura?',                  key: 'conyugue_4', answer: '1.78' },
+    ]
+  },
+  conocido: {
+    title: 'Validación — Conocido',
+    desc: 'Verifica que realmente me conoces.',
+    questions: [
+      { q: '¿Cuál es mi nombre?',          key: 'conocido_1', answer: 'joel pineda' },
+      { q: '¿De qué color son mis ojos?',  key: 'conocido_2', answer: 'azules' },
+    ]
+  },
+  hermano_fe: {
+    title: 'Validación — Hermano en la Fe',
+    desc: 'Responde sobre tu conocimiento de mi ministerio.',
+    questions: [
+      { q: '¿Qué hago en la iglesia?',      key: 'hermano_1', answer: 'musico' },
+      { q: '¿Qué instrumento toco?',         key: 'hermano_2', answer: 'bajo' },
+    ]
+  },
+  amigo: {
+    title: 'Validación — Amigo/a',
+    desc: 'Solo un amigo real sabe esto.',
+    questions: [
+      { q: '¿Qué juegos me gustan? (nombra uno)', key: 'amigo_1', answer: null, multi: ['free fire', 'halo'] },
+    ]
+  },
+  familiar: {
+    title: 'Validación — Familiar',
+    desc: 'Confirma que eres parte de mi familia.',
+    questions: [
+      { q: '¿Cuál es mi fecha de cumpleaños?', key: 'familiar_1', answer: '20-07-2003' },
+      { q: '¿Qué moto tengo?',                  key: 'familiar_2', answer: 'raider' },
+      { q: '¿Qué estudio?',                      key: 'familiar_3', answer: 'ingenieria de sistemas' },
+    ]
+  },
+  colega: {
+    title: 'Validación — Colega',
+    desc: 'Confirma que compartimos un entorno laboral.',
+    questions: [
+      { q: '¿Qué estudio o en qué área me desempeño?', key: 'colega_1', answer: 'ingenieria de sistemas' },
+    ]
+  },
+};
+
+// ════════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════════
+let currentStep = 1;
+let selectedRelation = null;
+let validationPassed = false;
+let loanData = {};
+
+// ════════════════════════════════════════════
+//  UTILIDADES
+// ════════════════════════════════════════════
+const fmt = n => new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(n);
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type='') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ════════════════════════════════════════════
+//  CÁLCULO DE PRÉSTAMO
+// ════════════════════════════════════════════
+function calcLoan() {
+  const monto = parseFloat($('monto').value) || 0;
+  const dias   = parseInt($('dias').value)   || 0;
+  if (!selectedRelation || monto < 1 || dias < 1) {
+    $('calcPreview').classList.add('hidden');
+    return null;
+  }
+  const rate   = RATES[selectedRelation];
+  const interes = monto * rate * dias;
+  const total   = monto + interes;
+  return { monto, dias, rate, interes, total };
+}
+
+function updateCalcPreview() {
+  const r = calcLoan();
+  const prev = $('calcPreview');
+  if (!r) { prev.classList.add('hidden'); return; }
+  prev.classList.remove('hidden');
+  $('pCapital').textContent      = fmt(r.monto);
+  $('pInteresLabel').textContent = `Interés (${r.dias} días)`;
+  $('pInteres').textContent      = fmt(r.interes);
+  $('pTotal').textContent        = fmt(r.total);
+}
+
+['monto','dias'].forEach(id => $('input-change-' + id) || document.getElementById(id)?.addEventListener('input', updateCalcPreview));
+
+// ════════════════════════════════════════════
+//  CHIPS DE RELACIÓN
+// ════════════════════════════════════════════
+function selectChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRelation = el.dataset.rel;
+  validationPassed = false;
+  updateCalcPreview();
+}
+
+// ════════════════════════════════════════════
+//  GENERADOR DE PREGUNTAS
+// ════════════════════════════════════════════
+function buildValidationUI() {
+  if (!selectedRelation || !VALIDATIONS[selectedRelation]) {
+    // Sin validación especial (no debería ocurrir con config actual)
+    validationPassed = true;
+    return;
+  }
+  const cfg = VALIDATIONS[selectedRelation];
+  $('vTitle').textContent = cfg.title;
+  $('vDesc').textContent  = cfg.desc;
+
+  const container = $('vQuestions');
+  container.innerHTML = '';
+
+  cfg.questions.forEach((qObj, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'field';
+    wrap.innerHTML = `
+      <label>${qObj.q}</label>
+      <input type="text" id="vq_${i}" placeholder="Tu respuesta..." autocomplete="off">
+      <span class="err-msg" id="ve_${i}"></span>
+    `;
+    container.appendChild(wrap);
+  });
+}
+
+function checkValidation() {
+  if (!selectedRelation || !VALIDATIONS[selectedRelation]) {
+    validationPassed = true;
+    return true;
+  }
+  const cfg = VALIDATIONS[selectedRelation];
+  let allOk = true;
+
+  cfg.questions.forEach((qObj, i) => {
+    const input = $(`vq_${i}`);
+    const errEl = $(`ve_${i}`);
+    if (!input) return;
+    const val = input.value.trim().toLowerCase();
+
+    let ok = false;
+    if (qObj.multi) {
+      ok = qObj.multi.some(a => val.includes(a.toLowerCase()));
+    } else {
+      ok = val === qObj.answer.toLowerCase() ||
+           val.replace(/[^a-z0-9]/g,'') === qObj.answer.replace(/[^a-z0-9]/g,'');
+    }
+
+    if (!ok) {
+      errEl.textContent = '❌ Respuesta incorrecta';
+      errEl.classList.add('visible');
+      input.classList.add('error');
+      allOk = false;
+    } else {
+      errEl.textContent = '✅ Correcto';
+      errEl.style.color = 'var(--accent)';
+      errEl.classList.add('visible');
+      input.classList.remove('error');
+    }
+  });
+
+  validationPassed = allOk;
+  return allOk;
+}
+
+// ════════════════════════════════════════════
+//  VALIDACIÓN CAMPOS PASO 1
+// ════════════════════════════════════════════
+function validateStep1() {
+  let ok = true;
+  const fields = [
+    { id:'nombre',    err:'err-nombre',   check: v => v.length > 2 },
+    { id:'documento', err:'err-documento', check: v => v.length > 4 },
+    { id:'celular',   err:'err-celular',   check: v => /^\d{7,12}$/.test(v.replace(/\s/g,'')) },
+    { id:'correo',    err:'err-correo',    check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { id:'domicilio', err:'err-domicilio', check: v => v.length > 4 },
+  ];
+  fields.forEach(f => {
+    const v = $(f.id).value.trim();
+    const errEl = $(f.err);
+    if (!f.check(v)) {
+      errEl.classList.add('visible');
+      $(f.id).classList.add('error');
+      ok = false;
+    } else {
+      errEl.classList.remove('visible');
+      $(f.id).classList.remove('error');
+    }
+  });
+  return ok;
+}
+
+function validateStep2() {
+  let ok = true;
+  const monto = parseFloat($('monto').value);
+  const dias   = parseInt($('dias').value);
+
+  if (!monto || monto < 10000) {
+    $('err-monto').classList.add('visible');
+    $('monto').classList.add('error');
+    ok = false;
+  } else {
+    $('err-monto').classList.remove('visible');
+    $('monto').classList.remove('error');
+  }
+
+  if (!dias || dias < 1 || dias > 365) {
+    $('err-dias').classList.add('visible');
+    $('dias').classList.add('error');
+    ok = false;
+  } else {
+    $('err-dias').classList.remove('visible');
+    $('dias').classList.remove('error');
+  }
+
+  if (!selectedRelation) {
+    $('err-relacion').classList.remove('hidden');
+    $('err-relacion').classList.add('visible');
+    ok = false;
+  } else {
+    $('err-relacion').classList.add('hidden');
+  }
+  return ok;
+}
+
+// ════════════════════════════════════════════
+//  CONSTRUCCIÓN DEL RESUMEN
+// ════════════════════════════════════════════
+function buildSummary() {
+  const r = calcLoan();
+  if (!r) return;
+
+  const relLabels = {
+    conyugue:'Cónyuge', familiar:'Familiar', amigo:'Amigo/a',
+    hermano_fe:'Hermano en la Fe', colega:'Colega', conocido:'Conocido'
+  };
+
+  const rows = [
+    { k:'Nombre',           v: $('nombre').value.trim() },
+    { k:'Documento',        v: $('documento').value.trim() },
+    { k:'N° Cuenta',        v: $('cuenta').value.trim() || '—' },
+    { k:'Celular',          v: $('celular').value.trim() },
+    { k:'Correo',           v: $('correo').value.trim() },
+    { k:'Domicilio',        v: $('domicilio').value.trim() },
+    { k:'Capital solicitado', v: fmt(r.monto), highlight: false },
+    { k:'Días del crédito', v: r.dias + ' días' },
+    { k:'Relación',         v: relLabels[selectedRelation] || selectedRelation },
+    { k:'Interés estimado', v: fmt(r.interes) },
+  ];
+
+  const card = $('summaryCard');
+  card.innerHTML = rows.map(row => `
+    <div class="summary-row">
+      <span class="summary-key">${row.k}</span>
+      <span class="summary-val ${row.highlight ? 'highlight' : ''}">${row.v}</span>
+    </div>
+  `).join('');
+
+  $('summaryTotal').textContent = fmt(r.total);
+
+  // Guardar para PDF
+  loanData = {
+    nombre: $('nombre').value.trim(),
+    documento: $('documento').value.trim(),
+    cuenta: $('cuenta').value.trim() || '—',
+    celular: $('celular').value.trim(),
+    correo: $('correo').value.trim(),
+    domicilio: $('domicilio').value.trim(),
+    relacion: relLabels[selectedRelation],
+    monto: r.monto,
+    dias: r.dias,
+    interes: r.interes,
+    total: r.total,
+  };
+}
+
+// ════════════════════════════════════════════
+//  NAVEGACIÓN
+// ════════════════════════════════════════════
+function setStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = n === 'success' ? $('step-success') : $('step' + n);
+  if (el) el.classList.add('active');
+
+  const btn = $('btnNext');
+  const back = $('btnBack');
+  const nav  = $('navBtns');
+
+  if (n === 'success') {
+    nav.classList.add('hidden');
+  } else {
+    nav.classList.remove('hidden');
+    back.style.display = (n > 1) ? 'flex' : 'none';
+    btn.innerHTML = n === 4
+      ? '<span class="btn-text">Enviar solicitud 🚀</span><div class="loader"></div>'
+      : '<span class="btn-text">Continuar →</span><div class="loader"></div>';
+  }
+
+  // Progress
+  const pcts = { 1:25, 2:50, 3:75, 4:100 };
+  if (pcts[n]) $('progressBar').style.width = pcts[n] + '%';
+  ['pl1','pl2','pl3','pl4'].forEach((id, i) => {
+    $(id).classList.toggle('active', i + 1 <= n);
+  });
+
+  currentStep = n;
+}
+
+function nextStep() {
+  const btn = $('btnNext');
+
+  if (currentStep === 1) {
+    if (!validateStep1()) { showToast('⚠️ Completa todos los campos requeridos', 'error'); return; }
+    setStep(2);
+  } else if (currentStep === 2) {
+    if (!validateStep2()) { showToast('⚠️ Verifica los datos del préstamo', 'error'); return; }
+    buildValidationUI();
+    setStep(3);
+  } else if (currentStep === 3) {
+    if (!checkValidation()) { showToast('❌ Algunas respuestas son incorrectas', 'error'); return; }
+    buildSummary();
+    setStep(4);
+  } else if (currentStep === 4) {
+    // Enviar
+    btn.classList.add('loading');
+    sendToTelegram().then(() => {
+      btn.classList.remove('loading');
+      setStep('success');
+    }).catch(() => {
+      btn.classList.remove('loading');
+      // Igual pasamos a éxito para descargar PDF
+      setStep('success');
+    });
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) setStep(currentStep - 1);
+}
+
+// ════════════════════════════════════════════
+//  TELEGRAM
+// ════════════════════════════════════════════
+async function sendToTelegram() {
+  const r = calcLoan();
+  const relLabels = {
+    conyugue:'Cónyuge', familiar:'Familiar', amigo:'Amigo/a',
+    hermano_fe:'Hermano en la Fe', colega:'Colega', conocido:'Conocido'
+  };
+
+  const msg = `
+💸 *KrediSoft — Nueva Solicitud*
+
+👤 *DATOS DEL SOLICITANTE*
+Nombre: ${$('nombre').value.trim()}
+Documento: ${$('documento').value.trim()}
+N° Cuenta: ${$('cuenta').value.trim() || '—'}
+Celular: ${$('celular').value.trim()}
+Correo: ${$('correo').value.trim()}
+Domicilio: ${$('domicilio').value.trim()}
+
+💰 *DETALLES DEL PRÉSTAMO*
+Relación: ${relLabels[selectedRelation] || selectedRelation}
+Capital solicitado: ${fmt(r.monto)}
+Días: ${r.dias} días
+Interés total: ${fmt(r.interes)}
+*TOTAL A PAGAR: ${fmt(r.total)}*
+
+📅 Fecha: ${new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'})}
+  `.trim();
+
+  const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
+  });
+}
+
+// ════════════════════════════════════════════
+//  PDF
+// ════════════════════════════════════════════
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+
+  const W = 210, margin = 18;
+  let y = 0;
+
+  // Fondo header
+  doc.setFillColor(10, 12, 16);
+  doc.rect(0, 0, W, 44, 'F');
+
+  // Logo text
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(22);
+  doc.setTextColor(0, 229, 160);
+  doc.text('KrediSoft', margin, 22);
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(107, 114, 128);
+  doc.text('Gestión de Créditos Privados', margin, 30);
+
+  // Fecha y folio
+  const fecha = new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'});
+  const folio = 'KS-' + Date.now().toString().slice(-7);
+  doc.setFontSize(8);
+  doc.setTextColor(107, 114, 128);
+  doc.text(`Fecha: ${fecha}`, W - margin, 22, { align:'right' });
+  doc.text(`Folio: ${folio}`, W - margin, 29, { align:'right' });
+
+  y = 52;
+
+  // Título sección
+  const sectionTitle = (title) => {
+    doc.setFillColor(28, 32, 48);
+    doc.roundedRect(margin, y, W - margin*2, 8, 2, 2, 'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.setTextColor(0, 229, 160);
+    doc.text(title, margin + 4, y + 5.5);
+    y += 13;
+  };
+
+  const row = (label, value) => {
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(107, 114, 128);
+    doc.text(label, margin + 2, y);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(30, 30, 40);
+    const lines = doc.splitTextToSize(String(value), 90);
+    doc.text(lines, W/2, y);
+    doc.setDrawColor(230, 230, 230);
+    doc.line(margin, y + 2.5, W - margin, y + 2.5);
+    y += 9;
+  };
+
+  sectionTitle('DATOS DEL SOLICITANTE');
+  row('Nombre completo', loanData.nombre);
+  row('N° Documento', loanData.documento);
+  row('N° Cuenta / Referencia', loanData.cuenta);
+  row('Celular', loanData.celular);
+  row('Correo electrónico', loanData.correo);
+  row('Domicilio', loanData.domicilio);
+
+  y += 4;
+  sectionTitle('DETALLES DEL CRÉDITO');
+  row('Relación con prestamista', loanData.relacion);
+  row('Capital solicitado', fmt(loanData.monto));
+  row('Días del crédito', loanData.dias + ' días');
+  row('Interés generado', fmt(loanData.interes));
+
+  // Total
+  y += 4;
+  doc.setFillColor(0, 229, 160);
+  doc.roundedRect(margin, y, W - margin*2, 18, 3, 3, 'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text('TOTAL A PAGAR', margin + 6, y + 7);
+  doc.setFontSize(14);
+  doc.text(fmt(loanData.total), W - margin - 4, y + 11, { align:'right' });
+  y += 26;
+
+  // Nota legal
+  doc.setFont('helvetica','italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(150, 150, 150);
+  const nota = 'Este documento es una propuesta de crédito privado generada por KrediSoft. Las condiciones definitivas quedan sujetas a acuerdo entre las partes. KrediSoft no es una entidad financiera regulada.';
+  const notaLines = doc.splitTextToSize(nota, W - margin*2);
+  doc.text(notaLines, margin, y);
+  y += notaLines.length * 4 + 4;
+
+  // Firma
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7);
+  doc.setTextColor(180, 180, 180);
+  doc.text('Generado por KrediSoft App · ' + new Date().toLocaleString('es-CO'), W/2, y, { align:'center' });
+
+  doc.save(`KrediSoft_${loanData.nombre.replace(/\s+/g,'_')}_${folio}.pdf`);
+  showToast('📄 PDF descargado exitosamente', 'success');
+}
+
+// ════════════════════════════════════════════
+//  RESET
+// ════════════════════════════════════════════
+function resetForm() {
+  ['nombre','documento','cuenta','celular','correo','domicilio','monto','dias'].forEach(id => {
+    const el = $(id);
+    if (el) el.value = '';
+  });
+  selectedRelation = null;
+  validationPassed = false;
+  loanData = {};
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  $('calcPreview').classList.add('hidden');
+  setStep(1);
+}
+
+// ════════════════════════════════════════════
+//  LISTENERS EN TIEMPO REAL
+// ════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  $('monto').addEventListener('input', updateCalcPreview);
+  $('dias').addEventListener('input', updateCalcPreview);
+});
+</script>
+</body>
+</html>
